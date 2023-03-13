@@ -1,0 +1,31 @@
+#!/bin/bash
+set -euE
+
+declare -A deps
+
+file_deps() {
+  if [[ -z ${deps[$1]+set} ]]
+  then
+    deps[$1]="$(readlink -enq "$1")"
+    for _f in $(ldd "$1" | fgrep '=>' | awk '{print $3}')
+    do
+      file_deps "${_f}"
+    done
+  fi
+}
+
+mkdir -p "$2"
+file_deps "/lib64/ld-linux-x86-64.so.2"
+file_deps "$1"
+for f in ${!deps[@]}
+do
+  d="$(dirname "${f}")"
+  b="$(basename "${f}")"
+  if [[ -f ${2}${d}/${b} ]]
+  then
+    continue
+  fi
+  echo "${f} => ${deps[$f]}"
+  mkdir -p "${2}${d}"
+  ln "${deps[$f]}" "${2}${d}/${b}"
+done
