@@ -20,11 +20,10 @@ cp chroot-rsync /storage/submit/<user>usr/bin/
 Match Group rsync-only
   AuthorizedKeysFile /etc/ssh-pool/%u
   ChrootDirectory /storage/submit/%u
-  PermitTTY no
+  ForceCommand /usr/bin/chroot-rsync
   AllowTcpForwarding no
   X11Forwarding no
   PermitTTY no
-  ForceCommand /usr/bin/chroot-rsync
 ```
 
 ## Create user & group
